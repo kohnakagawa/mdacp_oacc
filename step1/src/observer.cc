@@ -41,7 +41,7 @@ PotentialEnergyObserver::Observe(Variables *vars, MeshList *mesh) {
     }
     energy += e;
   }
-#ifdef FX10
+#ifdef REACTLESS
   energy *= 0.5;
 #endif
   return energy;
@@ -72,7 +72,7 @@ VirialObserver::Observe(Variables *vars, MeshList *mesh) {
     }
     phi += df;
   }
-#ifdef FX10
+#ifdef REACTLESS
   phi *= 0.5;
 #endif
   return phi / 3.0;

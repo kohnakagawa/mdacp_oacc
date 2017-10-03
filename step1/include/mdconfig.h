@@ -15,6 +15,24 @@ const int PAIRLIST_SIZE = N * 80;
 const double CUTOFF_LENGTH = 3.0;
 //const double CUTOFF_LENGTH = 2.5;
 
+template <int dim>
+struct Vector_t {}; // dummy
+
+template <>
+struct Vector_t<3> {double x, y, z;};
+template <>
+struct Vector_t<4> {double x, y, z, w;};
+
+using Vec = Vector_t<D>;
+
+//---------------------------------------------------------------------
+#if defined FX10 || defined GPU_OACC
+#define REACTLESS
+#endif
+//---------------------------------------------------------------------
+#ifdef REACTLESS
+#warning "REACTLESS is defined! Pairwise interactions are calculated without the law of action-reaction."
+#endif
 //---------------------------------------------------------------------------
 extern const char *MDACP_VERSION;
 //---------------------------------------------------------------------------

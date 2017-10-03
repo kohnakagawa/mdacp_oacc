@@ -21,7 +21,7 @@ namespace ForceCalculator {
    void CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationInfo *sinfo);
 #endif
 #ifdef GPU_OACC
-   /* void CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo); // naive way */
+   void CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo);
    void CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo);
 #endif
    void UpdatePositionHalf(Variables *vars, SimulationInfo *sinfo);

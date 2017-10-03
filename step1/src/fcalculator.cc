@@ -41,8 +41,13 @@ ForceCalculator::CalculateForce(Variables *vars, MeshList *mesh, SimulationInfo 
 //  CalculateForceReactlessSIMD(vars,mesh,sinfo);
   CalculateForceReactlessSIMD_errsafe(vars, mesh, sinfo);
 #elif GPU_OACC
-  // CalculateForceOACC(vars, mesh, sinfo);
+
+#ifdef REACTLESS
   CalculateForceReactlessOACC(vars, mesh, sinfo);
+#else
+  CalculateForceOACC(vars, mesh, sinfo);
+#endif
+
 #elif AVX2
   CalculateForceAVX2(vars, mesh, sinfo);
 #else
@@ -472,59 +477,62 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
 #endif
 //----------------------------------------------------------------------
 #ifdef GPU_OACC
-/*void
+void
 ForceCalculator::CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo) {
   const double CL2 = CUTOFF_LENGTH * CUTOFF_LENGTH;
   const double C2 = vars->GetC2();
   const double dt = sinfo->TimeStep;
   const int pn = vars->GetParticleNumber();
 
-  double (*q)[D] = vars->q;
-  double (*p)[D] = vars->p;
-  const int *sorted_list = mesh->GetSortedList();
-  const int *number_of_partners = mesh->GetNumberOfPartners();
-  const int *key_pointer = mesh->GetKeyPointerP();
+  const Vec* __restrict q = reinterpret_cast<Vec*>(vars->q[0]);
+  Vec* __restrict p = reinterpret_cast<Vec*>(vars->p[0]);
+  const int* __restrict sorted_list = mesh->GetSortedList();
+  const int* __restrict number_of_partners = mesh->GetNumberOfPartners();
+  const int* __restrict key_pointer = mesh->GetKeyPointerP();
   const int number_of_pairs = mesh->GetPairNumber();
 
-#pragma acc kernels copy(q[0:pn], p[0:pn], number_of_partners[0:pn], key_pointer[0:pn], sorted_list[0:number_of_pairs])
-  for (int i = 0; i < pn; i++) {
-    const double qx_key = q[i][X];
-    const double qy_key = q[i][Y];
-    const double qz_key = q[i][Z];
-    const int np = mesh->GetPartnerNumber(i);
-    double pfx = 0;
-    double pfy = 0;
-    double pfz = 0;
-    const int kp = mesh->GetKeyPointer(i);
-    for (int k = 0; k < np; k++) {
-      const int j = sorted_list[kp + k];
-      double dx = q[j][X] - qx_key;
-      double dy = q[j][Y] - qy_key;
-      double dz = q[j][Z] - qz_key;
-      double r2 = (dx * dx + dy * dy + dz * dz);
-      double r6 = r2 * r2 * r2;
-      double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
-      if (r2 > CL2) {
-        df = 0.0;
+#pragma acc data copy(p[0:pn]) copyin(q[0:pn], number_of_partners[0:pn], key_pointer[0:pn], sorted_list[0:number_of_pairs])
+  {
+#pragma acc kernels present(q, p, number_of_partners, key_pointer, sorted_list)
+    for (int i = 0; i < pn; i++) {
+      const double qx_key = q[i].x;
+      const double qy_key = q[i].y;
+      const double qz_key = q[i].z;
+      const int np = mesh->GetPartnerNumber(i);
+      double pfx = 0;
+      double pfy = 0;
+      double pfz = 0;
+      const int kp = key_pointer[i];
+      for (int k = 0; k < np; k++) {
+        const int j = sorted_list[kp + k];
+        double dx = q[j].x - qx_key;
+        double dy = q[j].y - qy_key;
+        double dz = q[j].z - qz_key;
+        double r2 = (dx * dx + dy * dy + dz * dz);
+        double r6 = r2 * r2 * r2;
+        double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
+        if (r2 > CL2) {
+          df = 0.0;
+        }
+        pfx += df * dx;
+        pfy += df * dy;
+        pfz += df * dz;
+#pragma acc atomic
+        p[j].x -= df * dx;
+#pragma acc atomic
+        p[j].y -= df * dy;
+#pragma acc atomic
+        p[j].z -= df * dz;
       }
-      pfx += df * dx;
-      pfy += df * dy;
-      pfz += df * dz;
 #pragma acc atomic
-      p[j][X] -= df * dx;
+      p[i].x += pfx;
 #pragma acc atomic
-      p[j][Y] -= df * dy;
+      p[i].y += pfy;
 #pragma acc atomic
-      p[j][Z] -= df * dz;
+      p[i].z += pfz;
     }
-#pragma acc atomic
-    p[i][X] += pfx;
-#pragma acc atomic
-    p[i][Y] += pfy;
-#pragma acc atomic
-    p[i][Z] += pfz;
   }
-  }*/
+}
 //----------------------------------------------------------------------
 void
 ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo) {
@@ -533,41 +541,44 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   const double dt = sinfo->TimeStep;
   const int pn = vars->GetTotalParticleNumber();
 
-  double (* __restrict q)[D] = vars->q;
-  double (* __restrict p)[D] = vars->p;
+  const Vec* __restrict q = reinterpret_cast<Vec*>(vars->q[0]);
+  Vec* __restrict p = reinterpret_cast<Vec*>(vars->p[0]);
   const int* __restrict sorted_list = mesh->GetSortedList();
   const int* __restrict number_of_partners = mesh->GetNumberOfPartners();
   const int* __restrict key_pointer = mesh->GetKeyPointerP();
   const int number_of_pairs = mesh->GetPairNumber();
 
-#pragma acc kernels copy(q[0:pn], p[0:pn], number_of_partners[0:pn], key_pointer[0:pn], sorted_list[0:number_of_pairs])
-  for (int i = 0; i < pn; i++) {
-    const double qx_key = q[i][X];
-    const double qy_key = q[i][Y];
-    const double qz_key = q[i][Z];
-    const int np = number_of_partners[i];
-    double pfx = 0;
-    double pfy = 0;
-    double pfz = 0;
-    const int kp = key_pointer[i];
-    for (int k = 0; k < np; k++) {
-      const int j = sorted_list[kp + k];
-      double dx = q[j][X] - qx_key;
-      double dy = q[j][Y] - qy_key;
-      double dz = q[j][Z] - qz_key;
-      double r2 = (dx * dx + dy * dy + dz * dz);
-      double r6 = r2 * r2 * r2;
-      double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
-      if (r2 > CL2) {
-        df = 0.0;
+#pragma acc data copy(p[0:pn]) copyin(q[0:pn], number_of_partners[0:pn], key_pointer[0:pn], sorted_list[0:number_of_pairs])
+  {
+#pragma acc kernels present(q, p, number_of_partners, key_pointer, sorted_list)
+    for (int i = 0; i < pn; i++) {
+      const double qx_key = q[i].x;
+      const double qy_key = q[i].y;
+      const double qz_key = q[i].z;
+      const int np = number_of_partners[i];
+      double pfx = 0;
+      double pfy = 0;
+      double pfz = 0;
+      const int kp = key_pointer[i];
+      for (int k = 0; k < np; k++) {
+        const int j = sorted_list[kp + k];
+        double dx = q[j].x - qx_key;
+        double dy = q[j].y - qy_key;
+        double dz = q[j].z - qz_key;
+        double r2 = (dx * dx + dy * dy + dz * dz);
+        double r6 = r2 * r2 * r2;
+        double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
+        if (r2 > CL2) {
+          df = 0.0;
+        }
+        pfx += df * dx;
+        pfy += df * dy;
+        pfz += df * dz;
       }
-      pfx += df * dx;
-      pfy += df * dy;
-      pfz += df * dz;
+      p[i].x += pfx;
+      p[i].y += pfy;
+      p[i].z += pfz;
     }
-    p[i][X] += pfx;
-    p[i][Y] += pfy;
-    p[i][Z] += pfz;
   }
 }
 #endif
