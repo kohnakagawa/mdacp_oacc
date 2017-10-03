@@ -299,7 +299,7 @@ MeshList::RegisterPair(int index1, int index2) {
   partner_particles[number_of_pairs] = i2;
   number_of_partners[i1]++;
   number_of_pairs++;
-#ifdef FX10
+#if defined FX10 || defined GPU_OACC
   key_particles[number_of_pairs] = i2;
   partner_particles[number_of_pairs] = i1;
   number_of_partners[i2]++;

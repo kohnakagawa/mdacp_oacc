@@ -26,6 +26,31 @@ MDManager::MDManager(int &argc, char ** &argv) {
   num_threads = omp_get_max_threads();
   mout << "# " << num_procs << " MPI Process(es), " << num_threads << " OpenMP Thread(s), Total " << num_procs * num_threads << " Unit(s)" << std::endl;
 
+#ifdef GPU_OACC
+  int num_gpus_per_node = 0;
+  const int dev_cnt = acc_get_num_devices(acc_device_nvidia);
+  mout << "# " << dev_cnt << "GPUs are found." << std::endl;
+  if (argc > 2) {
+    num_gpus_per_node = std::atoi(argv[2]);
+    if (num_gpus_per_node <= 0) {
+      mout << "Error: num_gpus_per_node should be positive." << std::endl;
+      exit(1);
+    }
+    if (num_gpus_per_node > dev_cnt) {
+      mout << "Error: Too many GPUs (" << num_gpus_per_node << ") are specified." << std::endl;
+      mout << "There is(are)" << dev_cnt << "GPU(s) in one node." << std::endl;
+      exit(1);
+    }
+  } else {
+    mout << "# Number of GPUs per node is not specified." << std::endl;
+    num_gpus_per_node = dev_cnt;
+  }
+  mout << "# Will use " << num_gpus_per_node << "GPU(s) / node." << std::endl;
+
+  const auto gpu_id = rank % num_gpus_per_node;
+  acc_set_device_num(gpu_id, acc_device_nvidia);
+#endif
+
   pinfo = new ParaInfo(num_procs, num_threads, param);
   int grid_size[D];
   pinfo->GetGridSize(grid_size);

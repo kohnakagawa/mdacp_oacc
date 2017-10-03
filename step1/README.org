@@ -1,0 +1,1 @@
+- 取り敢えずacc kernels directive入れて並列計算行えるようにするまで。
