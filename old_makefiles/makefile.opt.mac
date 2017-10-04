@@ -1,3 +1,0 @@
-CC=mpic++
-CPPFLAGS=-O3 -fopenmp -Wall
-
