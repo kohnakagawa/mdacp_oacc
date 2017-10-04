@@ -9,6 +9,14 @@
 #include "observer.h"
 #include "stopwatch.h"
 //----------------------------------------------------------------------
+#ifdef GPU_OACC
+#include <openacc.h>
+#endif
+//----------------------------------------------------------------------
+#ifdef REACTLESS
+#warning "REACTLESS is defined! Pairwise interactions are calculated without the law of action-reaction."
+#endif
+//----------------------------------------------------------------------
 MDManager::MDManager(int &argc, char ** &argv) {
   MPI_Init(&argc, &argv);
   MPI_Comm_size(MPI_COMM_WORLD, &num_procs);

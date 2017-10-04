@@ -29,10 +29,6 @@ using Vec = Vector_t<D>;
 #if defined FX10 || defined GPU_OACC
 #define REACTLESS
 #endif
-//---------------------------------------------------------------------
-#ifdef REACTLESS
-#warning "REACTLESS is defined! Pairwise interactions are calculated without the law of action-reaction."
-#endif
 //---------------------------------------------------------------------------
 extern const char *MDACP_VERSION;
 //---------------------------------------------------------------------------

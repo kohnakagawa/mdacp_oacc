@@ -7,8 +7,6 @@ file(GLOB mdacp_cpp_srcs ./src/*.cc)
 set(mdacp_srcs ${mdacp_cpp_srcs})
 include_directories(./include)
 
-set(OPT_FLAGS "-fast")
-
 # add warning flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Minform=warn")
 
@@ -20,8 +18,5 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -ta=nvidia,cc35,keep,cuda7.0,ptxinf
 
 # enable C++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-
-# add opt flags
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OPT_FLAGS}")
 
 add_executable(mdacp ${mdacp_srcs})
