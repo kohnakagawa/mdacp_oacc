@@ -4,6 +4,7 @@
 #include <random>
 #include "fcalculator.h"
 #include "communicator.h"
+#include "mpistream.h"
 #include "stopwatch.h"
 
 //----------------------------------------------------------------------

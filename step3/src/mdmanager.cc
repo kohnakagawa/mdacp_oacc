@@ -35,6 +35,7 @@ MDManager::MDManager(int &argc, char ** &argv) {
   mout << "# " << num_procs << " MPI Process(es), " << num_threads << " OpenMP Thread(s), Total " << num_procs * num_threads << " Unit(s)" << std::endl;
 
 #ifdef GPU_OACC
+  acc_init(acc_device_nvidia);
   int num_gpus_per_node = 0;
   const int dev_cnt = acc_get_num_devices(acc_device_nvidia);
   mout << "# " << dev_cnt << "GPUs are found." << std::endl;

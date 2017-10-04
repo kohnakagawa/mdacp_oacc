@@ -14,7 +14,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Minform=warn")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mp")
 
 add_definitions(-DGPU_OACC)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -ta=nvidia,cc35,keep,cuda7.0,ptxinfo -Minfo=accel")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -ta=nvidia,cc35,keep,cuda7.5,ptxinfo -Minfo=accel")
 
 # enable C++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
