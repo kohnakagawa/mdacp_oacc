@@ -511,24 +511,22 @@ ForceCalculator::CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationI
         double r2 = (dx * dx + dy * dy + dz * dz);
         double r6 = r2 * r2 * r2;
         double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
-        if (r2 > CL2) {
-          df = 0.0;
-        }
+        if (r2 > CL2) continue;
         pfx += df * dx;
         pfy += df * dy;
         pfz += df * dz;
-#pragma acc atomic
+#pragma acc atomic update
         p[j].x -= df * dx;
-#pragma acc atomic
+#pragma acc atomic update
         p[j].y -= df * dy;
-#pragma acc atomic
+#pragma acc atomic update
         p[j].z -= df * dz;
       }
-#pragma acc atomic
+#pragma acc atomic update
       p[i].x += pfx;
-#pragma acc atomic
+#pragma acc atomic update
       p[i].y += pfy;
-#pragma acc atomic
+#pragma acc atomic update
       p[i].z += pfz;
     }
   }

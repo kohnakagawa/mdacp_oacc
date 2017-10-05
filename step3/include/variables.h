@@ -15,8 +15,8 @@ public:
   Variables(void);
   ~Variables(void);
   int type[N];
-  __attribute__((aligned(64))) double q[N][D];
-  __attribute__((aligned(64))) double p[N][D];
+  double q[N][D];
+  double p[N][D];
   double Zeta;
   double SimulationTime;
   double GetC0(void) {return C0;};
