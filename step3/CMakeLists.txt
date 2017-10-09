@@ -20,7 +20,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -ta=nvidia,cc35,keep,cuda7.5,ptxinf
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 # set(CUDA_PATH /usr/local/cuda) # for normal installation directory
-set(CUDA_PATH $ENV{CUDA_PATH}) # for sekirei
+set(CUDA_PATH /home/app/cuda/cuda-7.5) # for sekirei
 
 link_directories(${CUDA_PATH}/lib64)
 include_directories(${CUDA_PATH}/include)
