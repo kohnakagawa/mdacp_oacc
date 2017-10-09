@@ -1,0 +1,1 @@
+- sorted_listをtransposed_listへ変更するまで。
