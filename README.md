@@ -1,9 +1,9 @@
-# MDACP_OACC (OpenACC implementation of Molecular Dynamics code for Avogadro Challenge Project)
+# MDACP_OACC
 
 ## Summary
 MDACP_OACC is a GPGPU implementation of MDACP (Molecular Dynamics code for Avogadro Challenge Project) using OpenACC.
 
-- step1 (simple naive implementation)
+- step1 (a simple naive implementation)
 - step2 (CPU/GPU data transfer optimization)
 - step3 (CPU/GPU concurrent execution)
 - step4 (use transposed list)
@@ -19,7 +19,8 @@ $ make
 ```
 
 ## Requirements
-PGI C++ compiler (C++11 features are also required.)
+- PGI C++ compiler (C++11 features are also required.)
+- CUDA runtime library (when compiling step3 or step4)
 
-## Benchmark
+## Benchmark results
 on-going...
