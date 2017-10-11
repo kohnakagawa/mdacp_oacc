@@ -481,7 +481,6 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
 #endif
 //----------------------------------------------------------------------
 #ifdef GPU_OACC
-//----------------------------------------------------------------------
 #define FORCE_LOOP_BODY_CPU(beg, end)                                   \
   for (int i = beg; i < end; i++) {                                     \
     const double qx_key = q[i].x;                                       \
