@@ -13,7 +13,7 @@ The latest information of original MDACP is available at http://mdacp.sourceforg
 ## How to compile
 
 ``` sh
-$ source env/sekirei.sh # (or env/reedbush-l.sh) load modules
+$ source env/sekirei.sh # (or env/reedbush-l.sh)
 $ cd step3 # (step4, step2, or step1)
 $ mkdir build
 $ cd build
