@@ -22,7 +22,6 @@ namespace ForceCalculator {
 #endif
 #ifdef GPU_OACC
    void UpdateBalance(double& balance, const double tgpu_per_cpu);
-   void CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo);
    void CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo);
 #endif
    void UpdatePositionHalf(Variables *vars, SimulationInfo *sinfo);

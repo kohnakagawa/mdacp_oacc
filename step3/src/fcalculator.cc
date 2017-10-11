@@ -49,7 +49,7 @@ ForceCalculator::CalculateForce(Variables *vars, MeshList *mesh, SimulationInfo 
 #ifdef REACTLESS
   CalculateForceReactlessOACC(vars, mesh, sinfo);
 #else
-  CalculateForceOACC(vars, mesh, sinfo);
+#error "REACTLESS should be defined when using GPU_OACC!"
 #endif
 
 #elif AVX2
@@ -481,62 +481,6 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
 #endif
 //----------------------------------------------------------------------
 #ifdef GPU_OACC
-void
-ForceCalculator::CalculateForceOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo) {
-  const double CL2 = CUTOFF_LENGTH * CUTOFF_LENGTH;
-  const double C2 = vars->GetC2();
-  const double dt = sinfo->TimeStep;
-  const int pn = vars->GetParticleNumber();
-
-  const Vec* __restrict q = reinterpret_cast<Vec*>(vars->q[0]);
-  Vec* __restrict p = reinterpret_cast<Vec*>(vars->p[0]);
-  const int* __restrict sorted_list = mesh->GetSortedList();
-  const int* __restrict number_of_partners = mesh->GetNumberOfPartners();
-  const int* __restrict key_pointer = mesh->GetKeyPointerP();
-  const int number_of_pairs = mesh->GetPairNumber();
-
-#pragma acc data copy(p[0:pn]) copyin(q[0:pn])
-  {
-#pragma acc kernels present(q, p, number_of_partners, key_pointer, sorted_list)
-    for (int i = 0; i < pn; i++) {
-      const double qx_key = q[i].x;
-      const double qy_key = q[i].y;
-      const double qz_key = q[i].z;
-      const int np = mesh->GetPartnerNumber(i);
-      double pfx = 0;
-      double pfy = 0;
-      double pfz = 0;
-      const int kp = key_pointer[i];
-      for (int k = 0; k < np; k++) {
-        const int j = sorted_list[kp + k];
-        double dx = q[j].x - qx_key;
-        double dy = q[j].y - qy_key;
-        double dz = q[j].z - qz_key;
-        double r2 = (dx * dx + dy * dy + dz * dz);
-        double r6 = r2 * r2 * r2;
-        double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;
-        if (r2 > CL2) {
-          df = 0.0;
-        }
-        pfx += df * dx;
-        pfy += df * dy;
-        pfz += df * dz;
-#pragma acc atomic
-        p[j].x -= df * dx;
-#pragma acc atomic
-        p[j].y -= df * dy;
-#pragma acc atomic
-        p[j].z -= df * dz;
-      }
-#pragma acc atomic
-      p[i].x += pfx;
-#pragma acc atomic
-      p[i].y += pfy;
-#pragma acc atomic
-      p[i].z += pfz;
-    }
-  }
-}
 //----------------------------------------------------------------------
 #define FORCE_LOOP_BODY(beg, end)                                       \
   for (int i = beg; i < end; i++) {                                     \
