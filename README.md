@@ -13,7 +13,8 @@ The latest information of original MDACP is available at http://mdacp.sourceforg
 ## How to compile
 
 ``` sh
-$ cd step3 (step4, step2, or step1)
+$ source env/sekirei.sh # (or env/reedbush-l.sh) load modules
+$ cd step3 # (step4, step2, or step1)
 $ mkdir build
 $ cd build
 $ cmake ../ -DCMAKE_CXX_COMPILER=mpicxx # mpicxx should be pgi c++ compiler
