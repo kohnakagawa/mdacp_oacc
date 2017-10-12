@@ -20,12 +20,4 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -acc -ta=nvidia,cc60,keep,cuda8.0,ptxinf
 # enable C++11
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-# set(CUDA_PATH /usr/local/cuda) # for normal installation directory
-set(CUDA_PATH $ENV{CUDA_PATH})
-
-link_directories(${CUDA_PATH}/lib64)
-include_directories(${CUDA_PATH}/include)
-include_directories(${CUDA_PATH}/samples/common/inc)
-
 add_executable(mdacp ${mdacp_srcs})
-target_link_libraries(mdacp cudart)

@@ -541,19 +541,8 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
   }
 //----------------------------------------------------------------------
 void
-ForceCalculator::UpdateBalance(double& balance,
-                               const double tgpu_per_cpu) {
-  balance /= (1.0 - tgpu_per_cpu) * balance + tgpu_per_cpu;
-}
-//----------------------------------------------------------------------
-void
 ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo) {
-  constexpr int update_period = 10;
-
-  static thread_local TimerGPU timer_gpu;
-  static thread_local StopWatch timer_cpu(0, "force_cpu"); // FIXME:
-  static thread_local double balance = 0.7;
-  static thread_local int cnt_called = 0;
+  static thread_local double balance = 0.85;
 
   const double CL2  = CUTOFF_LENGTH * CUTOFF_LENGTH;
   const double C2   = vars->GetC2();
@@ -572,9 +561,6 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
 
   const int tid = omp_get_thread_num();
 
-  // start timer
-  timer_gpu.Start(); timer_cpu.Start();
-
   // Host -> Device
   #pragma acc update device(q[0:pn_tot], p[0:pn_gpu]) async(tid)
 
@@ -585,24 +571,11 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   // Device -> Host
   #pragma acc update host(p[0:pn_gpu]) async(tid)
 
-  timer_gpu.Stop();
-
   // Host force calculation
   FORCE_LOOP_BODY_CPU(pn_gpu, pn)
 
-  timer_cpu.Stop();
-
   // sync Host Device
   #pragma acc wait(tid)
-  timer_gpu.Record();
-
-  // work balance update
-  cnt_called++;
-  if (cnt_called % update_period) {
-    const auto tgpu_per_cpu = timer_gpu.DurationMean(update_period)
-      / timer_cpu.DurationMean(update_period);
-    UpdateBalance(balance, tgpu_per_cpu);
-  }
 }
 #endif
 //----------------------------------------------------------------------
