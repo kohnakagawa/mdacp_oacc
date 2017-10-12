@@ -492,12 +492,10 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   const int* __restrict key_pointer = mesh->GetKeyPointerP();
   const int number_of_pairs = mesh->GetPairNumber();
 
-  const int tid = omp_get_thread_num();
-
   // Host -> Device
-#pragma acc update device(q[0:pn_tot], p[0:pn]) async(tid)
+#pragma acc update device(q[0:pn_tot], p[0:pn])
 
-#pragma acc kernels present(q, p, number_of_partners, key_pointer, sorted_list) async(tid)
+#pragma acc kernels present(q, p, number_of_partners, key_pointer, sorted_list)
   for (int i = 0; i < pn; i++) {
     const double qx_key = q[i].x;
     const double qy_key = q[i].y;
@@ -528,9 +526,7 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   }
 
   // Device -> Host
-#pragma acc update host(p[0:pn]) async(tid)
-
-#pragma acc wait(tid)
+#pragma acc update host(p[0:pn])
 }
 #endif
 //----------------------------------------------------------------------
