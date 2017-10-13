@@ -542,7 +542,7 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
 //----------------------------------------------------------------------
 void
 ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, SimulationInfo *sinfo) {
-  static thread_local double balance = 0.85;
+  static thread_local double balance = 1.0;
 
   const double CL2  = CUTOFF_LENGTH * CUTOFF_LENGTH;
   const double C2   = vars->GetC2();
