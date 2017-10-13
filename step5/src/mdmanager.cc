@@ -33,7 +33,7 @@ MDManager::MDManager(int &argc, char ** &argv) {
   mout << "# " << num_gpus_avail << "GPUs are found." << std::endl;
   arg_parser.add<int>("num_gpus_per_node", 'g', "number of gpus per one node",
                       false, num_gpus_avail, cmdline::range(1, num_gpus_avail));
-  arg_parser.add<int>("num_of_procs_per_gpu", 'p', "number of processes per one gpu",
+  arg_parser.add<int>("num_procs_per_gpu", 'p', "number of processes per one gpu",
                       true);
 #endif
   arg_parser.parse_check(argc, argv);
@@ -45,15 +45,17 @@ MDManager::MDManager(int &argc, char ** &argv) {
        << " OpenMP Thread(s), Total " << num_procs * num_threads << " Unit(s)" << std::endl;
 
 #ifdef GPU_OACC
-  const auto ngpus = arg_parser.get<int>("num_gpus_per_node");
-  mout << "# Will use " << ngpus << "GPU(s) / node." << std::endl;
-  const auto num_of_procs_per_gpu = arg_parser.get<int>("num_of_procs_per_gpu");
-  if (ngpus * num_of_procs_per_gpu != num_procs) {
-    show_error("# of GPU(s) per node * # of procs per GPU should be equal to total number of MPI processes.");
+  const auto ngpus_per_node  = arg_parser.get<int>("num_gpus_per_node");
+  mout << "# Will use " << ngpus_per_node << "GPU(s) / node." << std::endl;
+  const auto nprocs_per_gpu  = arg_parser.get<int>("num_procs_per_gpu");
+  const auto gpu_id_global   = rank / nprocs_per_gpu;
+  const auto gpu_id_local    = gpu_id_global % ngpus_per_node;
+  const auto nprocs_per_node = nprocs_per_gpu * ngpus_per_node;
+  if ((num_procs % nprocs_per_node) != 0) {
+    show_error("# # of processes should be devidable by # of processes/node.");
     exit(1);
   }
-  const auto gpu_id = (rank / num_of_procs_per_gpu) % ngpus;
-  acc_set_device_num(gpu_id, acc_device_nvidia);
+  acc_set_device_num(gpu_id_local, acc_device_nvidia);
 #endif
 
   pinfo = new ParaInfo(num_procs, num_threads, param);
@@ -66,7 +68,7 @@ MDManager::MDManager(int &argc, char ** &argv) {
   #pragma omp parallel shared(v) private(tid,mdp)
   {
 #ifdef GPU_OACC
-    acc_set_device_num(gpu_id, acc_device_nvidia);
+    acc_set_device_num(gpu_id_local, acc_device_nvidia);
 #endif
     tid = omp_get_thread_num();
     mdp = new MDUnit(tid + rank * num_threads, sinfo, pinfo);
@@ -81,7 +83,7 @@ MDManager::MDManager(int &argc, char ** &argv) {
   s_time = 0.0;
 
 #ifdef GPU_OACC
-  acc_set_device_num(gpu_id, acc_device_nvidia);
+  acc_set_device_num(gpu_id_local, acc_device_nvidia);
 #endif
 }
 //----------------------------------------------------------------------
