@@ -29,9 +29,8 @@ MDManager::MDManager(int &argc, char ** &argv) {
   arg_parser.add<std::string>("in", 'i', "input file name", false, "input.cfg");
 #ifdef GPU_OACC
   acc_init(acc_device_nvidia);
-  int num_gpus_per_node = 0;
-  const int dev_cnt = acc_get_num_devices(acc_device_nvidia);
-  mout << "# " << dev_cnt << "GPUs are found." << std::endl;
+  const int num_gpus_avail = acc_get_num_devices(acc_device_nvidia);
+  mout << "# " << num_gpus_avail << "GPUs are found." << std::endl;
   arg_parser.add<int>("num_gpus_per_node", 'g', "number of gpus per one node",
                       false, num_gpus_avail, cmdline::range(1, num_gpus_avail));
   arg_parser.add<int>("num_of_procs_per_gpu", 'p', "number of processes per one gpu",
@@ -53,7 +52,7 @@ MDManager::MDManager(int &argc, char ** &argv) {
     show_error("# of GPU(s) per node * # of procs per GPU should be equal to total number of MPI processes.");
     exit(1);
   }
-  const auto gpu_id = (rank / num_of_procs_per_gpu) % num_gpus_per_node;
+  const auto gpu_id = (rank / num_of_procs_per_gpu) % ngpus;
   acc_set_device_num(gpu_id, acc_device_nvidia);
 #endif
 
