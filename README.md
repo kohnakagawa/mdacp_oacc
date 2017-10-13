@@ -15,11 +15,7 @@ The latest information of original MDACP is available at http://mdacp.sourceforg
 
 ``` sh
 $ source env/sekirei.sh # (or env/reedbush-l.sh)
-$ cd step5 # (step4, step3, step2, or step1)
-$ mkdir build
-$ cd build
-$ cmake ../ -DCMAKE_CXX_COMPILER=mpicxx # mpicxx should be pgi c++ compiler
-$ make
+$ ./compile_all_steps.sh KEPLER # (or PASCAL)
 ```
 
 ## Requirements
