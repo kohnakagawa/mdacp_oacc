@@ -10,15 +10,19 @@ cmake_build () {
 }
 
 gpu_arch=KEPLER # default is kepler
-if [ $# -eq 1 ]; then
+cutoff=2.5
+if [ $# -eq 2 ]; then
     gpu_arch=$1
+    cutoff=$2
 fi
 echo "GPU_ARCH is set to ${gpu_arch}"
+echo "LJ cutoff is set to ${cutoff}"
 
 root_dir=$(pwd)
 for dir in $(ls -d step*)
 do
     cd $dir
-    cmake_build ${gpu_arch}
+    sed -i -e "s/CUTOFF_LENGTH = [0-9]\+.\?[0-9]*/CUTOFF_LENGTH = ${cutoff}/g" ./include/mdconfig.h
+    # cmake_build ${gpu_arch}
     cd $root_dir
 done
