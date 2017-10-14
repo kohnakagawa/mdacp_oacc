@@ -23,6 +23,6 @@ for dir in $(ls -d step*)
 do
     cd $dir
     sed -i -e "s/CUTOFF_LENGTH = [0-9]\+.\?[0-9]*/CUTOFF_LENGTH = ${cutoff}/g" ./include/mdconfig.h
-    # cmake_build ${gpu_arch}
+    cmake_build ${gpu_arch}
     cd $root_dir
 done
