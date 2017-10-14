@@ -1,0 +1,3 @@
+CC=mpicxx
+CPPFLAGS=-mp -fast -std=c++11 -Minform=warn
+
