@@ -5,6 +5,7 @@ MDACP_OACC is a GPGPU implementation of MDACP (Molecular Dynamics code for Avoga
 
 The latest information of original MDACP is available at http://mdacp.sourceforge.net/ .
 
+- step0 (preparation for OpenACC porting)
 - step1 (a simple naive implementation)
 - step2 (CPU/GPU data transfer optimization)
 - step3 (CPU/GPU concurrent execution)
@@ -16,6 +17,16 @@ The latest information of original MDACP is available at http://mdacp.sourceforg
 ``` sh
 $ source env/sekirei.sh # (or env/reedbush-l.sh)
 $ ./compile_all_steps.sh KEPLER # (or PASCAL)
+```
+
+## Run
+
+``` sh
+# step1 -- step4 (1GPU and 1MPI process)
+$ mpiexec -np 1 ./mdacp input_gpu.cfg 1
+
+# step5 (1GPU and 1MPI process)
+$ mpiexec -np 1 ./mdacp -i input_gpu.cfg -p 1 -g 1
 ```
 
 ## Requirements

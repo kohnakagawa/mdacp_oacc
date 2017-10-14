@@ -19,7 +19,7 @@ echo "GPU_ARCH is set to ${gpu_arch}"
 echo "LJ cutoff is set to ${cutoff}"
 
 root_dir=$(pwd)
-for dir in $(ls -d step*)
+for dir in step1 step2 step3 step4 step5
 do
     cd $dir
     sed -i -e "s/CUTOFF_LENGTH = [0-9]\+.\?[0-9]*/CUTOFF_LENGTH = ${cutoff}/g" ./include/mdconfig.h

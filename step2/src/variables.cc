@@ -26,17 +26,13 @@ Variables::Variables(void) {
   C2 = 6.0 * s14 - 3.0 * s8;
   C0 = -s12 + s6 - C2 / s2;
 #ifdef GPU_OACC
-  Vec* q_vec = reinterpret_cast<Vec*>(q[0]);
-  Vec* p_vec = reinterpret_cast<Vec*>(p[0]);
-  #pragma acc enter data create(q_vec[0:N], p_vec[0:N])
+  #pragma acc enter data create(q[0:N][0:D], p[0:N][0:D])
 #endif
 }
 //----------------------------------------------------------------------
 Variables::~Variables(void) {
 #ifdef GPU_OACC
-  Vec* q_vec = reinterpret_cast<Vec*>(q[0]);
-  Vec* p_vec = reinterpret_cast<Vec*>(p[0]);
-  #pragma acc exit data delete(q_vec, p_vec)
+  #pragma acc exit data delete(q[0:N][0:D], p[0:N][0:D])
 #endif
 }
 //----------------------------------------------------------------------

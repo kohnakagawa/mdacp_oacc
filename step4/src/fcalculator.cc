@@ -483,9 +483,9 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
 #ifdef GPU_OACC
 #define FORCE_LOOP_BODY_CPU(beg, end)                                   \
   for (int i = beg; i < end; i++) {                                     \
-    const double qx_key = q[i].x;                                       \
-    const double qy_key = q[i].y;                                       \
-    const double qz_key = q[i].z;                                       \
+    const double qx_key = q[i][X];                                      \
+    const double qy_key = q[i][Y];                                      \
+    const double qz_key = q[i][Z];                                      \
     const int np = number_of_partners[i];                               \
     double pfx = 0;                                                     \
     double pfy = 0;                                                     \
@@ -493,9 +493,9 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
     const int kp = key_pointer[i];                                      \
     for (int k = 0; k < np; k++) {                                      \
       const int j = sorted_list[kp + k];                                \
-      double dx = q[j].x - qx_key;                                      \
-      double dy = q[j].y - qy_key;                                      \
-      double dz = q[j].z - qz_key;                                      \
+      double dx = q[j][X] - qx_key;                                     \
+      double dy = q[j][Y] - qy_key;                                     \
+      double dz = q[j][Z] - qz_key;                                     \
       double r2 = (dx * dx + dy * dy + dz * dz);                        \
       double r6 = r2 * r2 * r2;                                         \
       double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;\
@@ -506,28 +506,28 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
       pfy += df * dy;                                                   \
       pfz += df * dz;                                                   \
     }                                                                   \
-    p[i].x += pfx;                                                      \
-    p[i].y += pfy;                                                      \
-    p[i].z += pfz;                                                      \
+    p[i][X] += pfx;                                                     \
+    p[i][Y] += pfy;                                                     \
+    p[i][Z] += pfz;                                                     \
   }
 //----------------------------------------------------------------------
 #define FORCE_LOOP_BODY_GPU(beg, end)                                   \
   for (int i = beg; i < end; i++) {                                     \
-    const double qx_key = q[i].x;                                       \
-    const double qy_key = q[i].y;                                       \
-    const double qz_key = q[i].z;                                       \
+    const double qx_key = q[i][X];                                      \
+    const double qy_key = q[i][Y];                                      \
+    const double qz_key = q[i][Z];                                      \
     const int np = number_of_partners[i];                               \
     double pfx = 0;                                                     \
     double pfy = 0;                                                     \
     double pfz = 0;                                                     \
     for (int k = 0; k < np; k++) {                                      \
       const int j = transposed_list[i + k * pn];                        \
-      double dx = q[j].x - qx_key;                                      \
-      double dy = q[j].y - qy_key;                                      \
-      double dz = q[j].z - qz_key;                                      \
+      double dx = q[j][X] - qx_key;                                     \
+      double dy = q[j][Y] - qy_key;                                     \
+      double dz = q[j][Z] - qz_key;                                     \
       double r2 = (dx * dx + dy * dy + dz * dz);                        \
       double r6 = r2 * r2 * r2;                                         \
-      double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt; \
+      double df = ((24.0 * r6 - 48.0) / (r6 * r6 * r2) + C2 * 8.0) * dt;\
       if (r2 > CL2) {                                                   \
         df = 0.0;                                                       \
       }                                                                 \
@@ -535,9 +535,9 @@ ForceCalculator::CalculateForceAVX2(Variables *vars, MeshList *mesh, SimulationI
       pfy += df * dy;                                                   \
       pfz += df * dz;                                                   \
     }                                                                   \
-    p[i].x += pfx;                                                      \
-    p[i].y += pfy;                                                      \
-    p[i].z += pfz;                                                      \
+    p[i][X] += pfx;                                                     \
+    p[i][Y] += pfy;                                                     \
+    p[i][Z] += pfz;                                                     \
   }
 //----------------------------------------------------------------------
 void
@@ -551,25 +551,24 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   const int pn_tot  = vars->GetTotalParticleNumber();
   const auto pn_gpu = static_cast<int>(pn * balance);
 
-  const Vec* __restrict q                  = reinterpret_cast<Vec*>(vars->q[0]);
-  Vec* __restrict p                        = reinterpret_cast<Vec*>(vars->p[0]);
+  const double (* __restrict q)[D]         = vars->q;
+  double (* __restrict p)[D]               = vars->p;
   const int* __restrict sorted_list        = mesh->GetSortedList();
   const int* __restrict number_of_partners = mesh->GetNumberOfPartners();
   const int* __restrict key_pointer        = mesh->GetKeyPointerP();
   const int* __restrict transposed_list    = mesh->GetTransposedList();
-  const int number_of_pairs                = mesh->GetPairNumber();
 
   const int tid = omp_get_thread_num();
 
   // Host -> Device
-  #pragma acc update device(q[0:pn_tot], p[0:pn_gpu]) async(tid)
+  #pragma acc update device(q[0:pn_tot][0:D], p[0:pn_gpu][0:D]) async(tid)
 
   // Device force calculation
   #pragma acc kernels present(q, p, number_of_partners, transposed_list) async(tid)
   FORCE_LOOP_BODY_GPU(0, pn_gpu)
 
   // Device -> Host
-  #pragma acc update host(p[0:pn_gpu]) async(tid)
+  #pragma acc update host(p[0:pn_gpu][0:D]) async(tid)
 
   // Host force calculation
   FORCE_LOOP_BODY_CPU(pn_gpu, pn)
