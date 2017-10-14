@@ -17,7 +17,7 @@ public:
     id = rank;
   };
   ~StopWatch(void) {
-    //if (id == 0)SaveToFile();
+    if (id == 0)SaveToFile();
     //SaveToFile();
   }
   void Start(void) {
