@@ -1,0 +1,12 @@
+- __restrictポインタに変更する。
+- 動くか依然として遅い。
+  - CPU <-> GPUのコピーが相当重いため。
+#+BEGIN_SRC
+    493, Generating copy(key_pointer[:pn],number_of_partners[:pn],p[:pn][:],q[:pn_tot][:],sorted_list[:npairs])
+    496, Loop is parallelizable
+         Accelerator kernel generated
+         Generating Tesla code
+        496, #pragma acc loop gang, vector(128) /* blockIdx.x threadIdx.x */
+        505, #pragma acc loop seq
+    505, Loop is parallelizable
+#+END_SRC

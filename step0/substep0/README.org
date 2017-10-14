@@ -1,0 +1,19 @@
+- 本当にディレクティブを追加するだけ。
+- dataディレクティブがないとコンパイルできない。
+  - 転送すべきデータサイズが判明しないため。
+#+BEGIN_SRC
+PGCC-S-0155-Compiler failed to translate accelerator region (see -Minfo messages): Could not find allocated-variable index for symbol (/home/m0029/m002903/mdacp_oacc/step0/substep0/src/fcalculator.cc: 492)
+ForceCalculator::CalculateForceReactlessOACC(Variables *, MeshList *, SimulationInfo *):
+    495, Loop carried dependence of p-> prevents parallelization
+         Complex loop carried dependence of key_pointer->,number_of_partners->,q->,sorted_list-> prevents parallelization
+         Loop carried backward dependence of p-> prevents vectorization
+         Accelerator kernel generated
+         Generating Tesla code
+        495, #pragma acc loop seq
+        504, #pragma acc loop vector(128) /* threadIdx.x */
+        515, Generating implicit reduction(+:pfx)
+        516, Generating implicit reduction(+:pfy)
+        517, Generating implicit reduction(+:pfz)
+    504, Accelerator restriction: size of the GPU copy of q,sorted_list is unknown
+         Loop is parallelizable
+#+END_SRC

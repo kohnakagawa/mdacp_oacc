@@ -1,0 +1,17 @@
+- 転送するdata量を指定した場合
+- 動くけどありえないくらい遅い。
+#+BEGIN_SRC
+ForceCalculator::CalculateForceReactlessOACC(Variables *, MeshList *, SimulationInfo *):
+    493, Generating copy(key_pointer[:pn],number_of_partners[:pn],p[:pn][:],q[:pn_tot][:],sorted_list[:npairs])
+    496, Loop carried dependence of p-> prevents parallelization
+         Complex loop carried dependence of key_pointer->,number_of_partners->,q->,sorted_list-> prevents parallelization
+         Loop carried backward dependence of p-> prevents vectorization
+         Accelerator kernel generated
+         Generating Tesla code
+        496, #pragma acc loop seq
+        505, #pragma acc loop vector(128) /* threadIdx.x */
+        516, Generating implicit reduction(+:pfx)
+        517, Generating implicit reduction(+:pfy)
+        518, Generating implicit reduction(+:pfz)
+    505, Loop is parallelizable
+#+END_SRC
