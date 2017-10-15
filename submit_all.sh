@@ -5,14 +5,13 @@ submit_all() {
     for f in $(ls ../../benchmark/$1)
     do
         dir=$(echo $f | sed -e "s/.sh//g" | sed -e "s/bench_//g")
-        if [ ! -d build ]; then
-            mkdir $dir
-        fi
+        rm -rf $dir
+        mkdir $dir
         cd $dir
         cp ../../../$2/build/mdacp .
         cp ../../../benchmark/$1/$f .
         cp ../../../run_cfg/input_gpu.cfg .
-        # qsub $f
+        qsub $f
         cd $root_d
     done
 }
