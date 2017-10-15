@@ -6,7 +6,7 @@
 
 cd $PBS_O_WORKDIR
 . /etc/profile.d/modules.sh
-# source ../../env/reedbush-l.sh
+source ../../../env/reedbush-l.sh
 
-mpijob ./mdacp -i input_gpu.cfg -g 4 -p 1
-# mpijob ./mdacp input_gpu.cfg 4
+mpirun -np 8 ./mdacp -i input_gpu.cfg -g 4 -p 1
+# mpirun -np 8 ./mdacp input_gpu.cfg 4
