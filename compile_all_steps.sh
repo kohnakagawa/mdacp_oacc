@@ -1,20 +1,21 @@
 #!/bin/sh
 
 cmake_build () {
-    if [ ! -d build ]; then
-        mkdir build
-    fi
-    cd build
+    rm -rf build
+    mkdir build
     cmake ../ -DCMAKE_CXX_COMPILER=mpicxx -DGPU_ARCH=$1
     make
 }
 
-gpu_arch=KEPLER # default is kepler
-cutoff=2.5
-if [ $# -eq 2 ]; then
-    gpu_arch=$1
-    cutoff=$2
+if [ $# -ne 2]; then
+    echo "Usage:"
+    echo "./compile_all_steps.sh gpu_arch cutoff"
+    exit 1
 fi
+
+gpu_arch=$1
+cutoff=$2
+
 echo "GPU_ARCH is set to ${gpu_arch}"
 echo "LJ cutoff is set to ${cutoff}"
 

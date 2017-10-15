@@ -5,7 +5,9 @@ submit_all() {
     for f in $(ls ../../benchmark/$1)
     do
         dir=$(echo $f | sed -e "s/.sh//g" | sed -e "s/bench_//g")
-        mkdir $dir
+        if [ ! -d build ]; then
+            mkdir $dir
+        fi
         cd $dir
         cp ../../../$2/build/mdacp .
         cp ../../../benchmark/$1/$f .
