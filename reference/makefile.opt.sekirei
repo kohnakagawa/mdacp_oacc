@@ -1,3 +1,4 @@
-CC=icpc
-CPPFLAGS=-fopenmp -xHOST -O3 
-LDFLAGS=-lmpi
+CC=mpicxx
+CPPFLAGS=-fopenmp -xHOST -O3 -std=c++11
+# CPPFLAGS=-fopenmp -xHOST -O3 -std=c++11 -DAVX2
+# LDFLAGS=-lmpi
