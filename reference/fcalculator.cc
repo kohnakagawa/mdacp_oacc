@@ -43,9 +43,9 @@ ForceCalculator::CalculateForce(Variables *vars, MeshList *mesh, SimulationInfo 
 #elif AVX2
   CalculateForceAVX2(vars, mesh, sinfo);
 #else
-  CalculateForceNext(vars, mesh, sinfo);
+  // CalculateForceNext(vars, mesh, sinfo);
   //CalculateForceBruteforce(vars,sinfo);
-  //CalculateForceSorted(vars,mesh,sinfo);
+  CalculateForceSorted(vars,mesh,sinfo);
   //CalculateForcePair(vars,mesh,sinfo);
   //CalculateForceUnroll(vars,mesh,sinfo);
 #endif

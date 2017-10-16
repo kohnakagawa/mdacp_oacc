@@ -3,11 +3,12 @@
 cmake_build () {
     rm -rf build
     mkdir build
+    cd build
     cmake ../ -DCMAKE_CXX_COMPILER=mpicxx -DGPU_ARCH=$1
     make
 }
 
-if [ $# -ne 2]; then
+if [ $# -ne 2 ]; then
     echo "Usage:"
     echo "./compile_all_steps.sh gpu_arch cutoff"
     exit 1
