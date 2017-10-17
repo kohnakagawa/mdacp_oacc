@@ -33,8 +33,6 @@ $ mpiexec -np 1 ./mdacp -i input_gpu.cfg -p 1 -g 1
 - PGI C++ compiler (C++11 features are also required.)
 
 ** Benchmark results
-- MUPS = Million Updates Per Second
-
 *** @ ISSP system B
 
 - CPU only (8 cores)
@@ -50,7 +48,7 @@ $ mpiexec -np 1 ./mdacp -i input_gpu.cfg -p 1 -g 1
 |                    | Elapsed Time [s] | Speed [MUPS] |
 |--------------------+------------------+--------------|
 | cpu only (no simd) |          216.732 |      1181.18 |
-| cpu only (simd)    |           183.64 |      1394.03 |
+| cpu only (simd)    |          183.640 |      1394.03 |
 
 
 - 1 GPU + CPU (8 cores)
