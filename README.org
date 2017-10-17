@@ -1,0 +1,97 @@
+* MDACP_OACC
+
+** Summary
+MDACP_OACC is a GPGPU implementation of MDACP (Molecular Dynamics code for Avogadro Challenge Project) using OpenACC.
+
+The latest information of original MDACP is available at http://mdacp.sourceforge.net/ .
+
+- step0 (preparation for OpenACC porting)
+- step1 (a simple naive implementation)
+- step2 (CPU/GPU data transfer optimization)
+- step3 (CPU/GPU concurrent execution)
+- step4 (use transposed list)
+- step5 (flat-MPI implementation)
+
+** How to compile
+
+#+BEGIN_SRC sh
+$ source env/sekirei.sh # (or env/reedbush-l.sh)
+$ ./compile_all_steps.sh KEPLER # (or PASCAL)
+#+END_SRC
+
+** Run
+
+#+BEGIN_SRC sh
+# step1 -- step4 (1GPU and 1MPI process)
+$ mpiexec -np 1 ./mdacp input_gpu.cfg 1
+
+# step5 (1GPU and 1MPI process)
+$ mpiexec -np 1 ./mdacp -i input_gpu.cfg -p 1 -g 1
+#+END_SRC
+
+** Requirements
+- PGI C++ compiler (C++11 features are also required.)
+
+** Benchmark results
+- MUPS = Million Updates Per Second
+
+*** @ ISSP system B
+
+- CPU only (8 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| cpu only (no simd) |          175.337 |      22.8132 |
+| cpu only (simd)    |          108.113 |      36.9985 |
+
+
+- CPU only (32 x 16 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| cpu only (no simd) |          216.732 |      1181.18 |
+| cpu only (simd)    |           183.64 |      1394.03 |
+
+
+- 1 GPU + CPU (8 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| openacc step1      |          248.871 |      16.0726 |
+| openacc step2      |          140.511 |      28.4676 |
+| openacc step3      |          102.945 |      38.8558 |
+| openacc step4      |          102.133 |      39.1647 |
+| cuda               |          68.0436 |      58.7859 |
+
+- 64 GPUs + CPU (32 x 16 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| openacc step1      |          503.883 |      508.055 |
+| openacc step2      |          210.581 |      1215.68 |
+| openacc step3      |          160.578 |      1594.24 |
+| openacc step4      |          159.069 |      1609.37 |
+| cuda               |          122.616 |      2087.82 |
+
+*** @ Reedbush-L
+
+- 1 GPU + CPU (8 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| openacc step1      |          227.032 |      17.6186 |
+| openacc step2      |          116.256 |      34.4067 |
+| openacc step3      |          90.4452 |      44.2257 |
+| openacc step4      |          89.1363 |      44.8751 |
+| cuda               |          66.2031 |      60.4201 |
+
+- 64 GPUs + CPU (32 x 16 cores)
+
+|                    | Elapsed Time [s] | Speed [MUPS] |
+|--------------------+------------------+--------------|
+| openacc step1      |          527.992 |      484.856 |
+| openacc step2      |          219.465 |      1166.48 |
+| openacc step3      |          194.565 |      1315.75 |
+| openacc step4      |          199.557 |      1282.84 |
+| cuda               |          164.775 |      1553.63 |
+
