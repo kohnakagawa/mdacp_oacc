@@ -492,7 +492,9 @@ ForceCalculator::CalculateForceReactlessOACC(Variables *vars, MeshList *mesh, Si
   const int* key_pointer = mesh->GetKeyPointerP();
   const int npairs = mesh->GetPairNumber();
 
-#pragma acc kernels copy(q[0:pn_tot][0:D], p[0:pn][0:D], sorted_list[0:npairs], number_of_partners[0:pn], key_pointer[0:pn])
+#pragma acc kernels copy(q[0:pn_tot][0:D], p[0:pn][0:D],              \
+                         sorted_list[0:npairs],                       \
+                         number_of_partners[0:pn], key_pointer[0:pn])
   for (int i = 0; i < pn; i++) {
     const double qx_key = q[i][X];
     const double qy_key = q[i][Y];
