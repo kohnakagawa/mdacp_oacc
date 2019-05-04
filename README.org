@@ -3,7 +3,7 @@
 ** Summary
 MDACP_OACC is a GPGPU implementation of MDACP (Molecular Dynamics code for Avogadro Challenge Project) using OpenACC.
 
-The latest information of original MDACP is available at http://mdacp.sourceforge.net/ .
+The latest information of original MDACP is available at https://github.com/kaityo256/mdacp .
 
 - step0 (preparation for OpenACC porting)
 - step1 (a simple naive implementation)
